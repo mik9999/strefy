@@ -12,9 +12,22 @@
     crossorigin=""></script>
   <script src="pip.js"></script>
   <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: larger;
+    }
+
     #mapid {
       height: 0%;
       visibility: hidden;
+    }
+
+    #main{
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 20%;
+      width: 60%;
     }
   </style>
 
@@ -23,14 +36,13 @@
 <body>
   <input id="strefy" type="hidden" value="" />
   <div id="mapid"></div>
-  <div id="text">Sprawdzam strefę...</div>
-  <div><a href="https://www.gov.pl/web/koronawirus/aktualne-zasady-i-ograniczenia">Zasady i ograniczenia</a></div>
-
-
-
+  <div id="main">
+    <div id="text">Ładuję powiaty...</div>
+    <div style="margin-top: 20px;"><a href="https://www.gov.pl/web/koronawirus/aktualne-zasady-i-ograniczenia">Zasady i ograniczenia</a></div>
+  </div>
   <script>
     var powiaty;
-    
+
     function onEachFeature(feature, layer) {
       // does this feature have a property named popupContent?
       if (feature.properties && feature.properties.JPT_NAZWA_) {
@@ -40,7 +52,7 @@
 
     function onLocationFound(e) {
       var powiat = "?"
-
+      $('#text').text("Sprawdzam strefę...");
       var results = leafletPip.pointInLayer(e.latlng, powiaty);
       if (results.length == 1) {
         powiat = results[0].feature.properties.JPT_NAZWA_;
@@ -65,19 +77,20 @@
           L.marker(e.latlng).addTo(map)
             .bindPopup("Twoja lokalizacja to: " + powiat + text).openPopup();
         });
-      }else{
+      } else {
         $('#text').text("Jesteś poza Polską");
       }
     }
 
 
     var map = L.map('mapid').setView([52.11, 19.21], 6);
-    
+
     map.on('locationfound', onLocationFound);
     $.getJSON("powiaty.json", function (data) {
       powiaty = L.geoJSON(data, {
         onEachFeature: onEachFeature
       }).addTo(map);
+      $('#text').text("Pobieram lokalizację...");
       map.locate();
     });
   </script>
